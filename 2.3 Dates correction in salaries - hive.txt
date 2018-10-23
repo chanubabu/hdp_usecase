@@ -1,0 +1,39 @@
+# As per below criteria
+
+The ‘to_date’ column overlaps with the ‘from_date’ column in the ‘salaries’ table.  
+This results in the employee having two salary records on the day of the ‘to_date’ column. 
+Fix it by decrementing the ‘to_date’ column by one day (e.g. from ‘1987-06-18’ to ‘1987-06-17’) to make each salary record exclusive
+
+
+#Solution1
+
+insert overwrite table salaries
+select A.emp_no,A.salary,A.from_date,case when A.from_date = A.to_date then A.to_date else cast(date_sub(A.to_date,1) as date) end as to_date from salaries A where A.to_date in (select B.to_date from salaries B where B.from_date = B.to_date) 
+UNION 
+select A.* from salaries A where A.to_date not in (select B.to_date from salaries B where B.from_date = B.to_date)
+order by to_date
+
+
+#Solution 2
+hive> create table salaries_test as
+    > select A.emp_no,A.salary,A.from_date,case when A.from_date != A.to_date and A.to_date = B.sal_date then cast(date_sub(A.to_date,1) as date) else A.to_date end as to_date from salaries A
+    > LEFT OUTER JOIN
+    > (select emp_no,to_date as sal_date from salaries where from_date = to_date) as B
+    > ON (A.emp_no = B.emp_no);
+
+
+hive> select *from salaries_test where emp_no=10867;
+OK
+10867   40000   1997-03-23      1998-03-23
+10867   44223   1998-03-23      1999-03-23
+10867   44054   1999-03-23      2000-03-22
+10867   46766   2000-03-22      2001-03-22
+10867   46330   2001-03-22      2002-03-21 
+10867   48248   2002-03-22      2002-03-22 
+Time taken: 0.047 seconds, Fetched: 6 row(s)
+hive> select *from salaries_test where emp_no=11315;
+OK
+11315   84316   2000-01-18      2001-01-17
+11315   84450   2001-01-17      2002-01-16
+11315   85452   2002-01-17      2002-01-17
+Time taken: 0.05 seconds, Fetched: 3 row(s)

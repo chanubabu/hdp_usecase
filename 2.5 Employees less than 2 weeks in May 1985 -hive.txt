@@ -1,0 +1,11 @@
+#Criteria
+
+Determine which employee lasted less than two weeks in the job in May 1985?
+
+#Solution
+
+select *from employees where emp_no in (select emp_no from salaries where to_date between '1985-05-01' and '1985-05-31' and datediff(to_date,from_date) <  14);
+
+OK
+296678  1955-12-16      Boutros McClurg M       1985-05-11
+

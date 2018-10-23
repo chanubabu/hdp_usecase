@@ -1,0 +1,44 @@
+storm jar storm-twitter.jar hdp.twitter.storm.topology.Topology cluster 5weOjbUOddQXjjzHz9u0iW9Ey Mz8genc5roo5te29ayF8klBfKbGBFCUYYAPuOAzbBBraBvBoLZ 600075909-8HmPG1Leyq9ebfdZF54MKauMxXNx1nBOgnkXr3H9 tZq2JwY5k2PKgjS6ZNRc9WiR2NjD8I21ybRM5e5A0SkPy
+
+
+/usr/hdp/2.6.5.0-292/storm/bin -Dstorm.jar=/tmp/86e6a192cfb311e89a320a041334ae04.jar -Dstorm.dependency.jars= -Dstorm.dependency.artifacts={} hdp.twitter.storm.topology.Topology cluster <consumer> <secert> <access> <access_secret>
+702  [main] INFO  o.a.s.StormSubmitter - Generated ZooKeeper secret payload for MD5-digest: -7279062709838918975:-6412400727884614839
+821  [main] INFO  o.a.s.u.NimbusClient - Found leader nimbus : edge01.hadoop.com:6627
+842  [main] INFO  o.a.s.s.a.AuthUtils - Got AutoCreds []
+848  [main] INFO  o.a.s.u.NimbusClient - Found leader nimbus : edge01.hadoop.com:6627
+867  [main] INFO  o.a.s.StormSubmitter - Uploading dependencies - jars...
+868  [main] INFO  o.a.s.StormSubmitter - Uploading dependencies - artifacts...
+868  [main] INFO  o.a.s.StormSubmitter - Dependency Blob keys - jars : [] / artifacts : []
+880  [main] INFO  o.a.s.StormSubmitter - Uploading topology jar /tmp/86e6a192cfb311e89a320a041334ae04.jar to assigned location: /hadoop/storm/nimbus/inbox/stormjar-d347d427-f99c-4715-9e3c-2b774761046a.jar
+1234 [main] INFO  o.a.s.StormSubmitter - Successfully uploaded topology jar to assigned location: /hadoop/storm/nimbus/inbox/stormjar-d347d427-f99c-4715-9e3c-2b774761046a.jar
+1234 [main] INFO  o.a.s.StormSubmitter - Submitting topology storm-twitter in distributed mode with conf {"topology.message.timeout.secs":120,"storm.zookeeper.topology.auth.scheme":"digest","storm.zookeeper.topology.auth.payload":"-7279062709838918975:-6412400727884614839"}
+1749 [main] INFO  o.a.s.StormSubmitter - Finished submitting topology: storm-twitter
+
+
+[root@edge01 storm-twitter]# hdfs dfs -ls /user/root/hdp/storm
+Found 4 items
+-rw-r--r--   3 storm hadoop         31 2018-10-13 10:12 /user/root/hdp/storm/testfile
+-rw-r--r--   3 storm hadoop          0 2018-10-13 10:07 /user/root/hdp/storm/twitterTweetHdfsBolt-6-0-1539425204813.txt
+-rw-r--r--   3 storm hadoop       1452 2018-10-13 10:21 /user/root/hdp/storm/twitterTweetHdfsBolt-6-0-1539425299829.txt
+-rw-r--r--   3 storm hadoop          0 2018-10-14 13:18 /user/root/hdp/storm/twitterTweetHdfsBolt-6-0-1539523106046.txt
+[root@edge01 storm-twitter]# hdfs dfs -tail /user/root/hdp/storm/twitterTweetHdfsBolt-6-0-1539523106046.txt
+hortonworks,2018-10-14 13:23:00,0
+india,2018-10-14 13:23:00,0
+movie,2018-10-14 13:23:00,0
+science,2018-10-14 13:23:00,0
+music,2018-10-14 13:23:00,2329
+hortonworks,2018-10-14 13:23:00,0
+india,2018-10-14 13:23:00,0
+movie,2018-10-14 13:23:00,0
+science,2018-10-14 13:23:00,432
+music,2018-10-14 13:23:00,0
+hortonworks,2018-10-14 13:23:00,0
+india,2018-10-14 13:23:00,0
+movie,2018-10-14 13:23:00,1396
+science,2018-10-14 13:23:00,0
+music,2018-10-14 13:23:00,0
+hortonworks,2018-10-14 13:23:00,0
+india,2018-10-14 13:23:00,0
+movie,2018-10-14 13:23:00,0
+science,2018-10-14 13:23:00,0
+music,2018-10-14 13:23:00,0

@@ -1,0 +1,7 @@
+#Employees Table
+[root@edge01 ~]# sqoop import --driver com.mysql.jdbc.Driver  --connect 'jdbc:mysql://172.20.100.201:3306/employees' /
+--username root -password <pwd> --table employees --target-dir /user/root/hdp/stage/employees -m 1
+
+#Salaries Table
+[root@edge01 ~]# sqoop import --driver com.mysql.jdbc.Driver  --connect 'jdbc:mysql://172.20.100.201:3306/employees' /
+--username root -password <pwd> --table salaries --target-dir /user/root/hdp/stage/salaries -m 1

@@ -1,0 +1,78 @@
+# As per below criteria
+
+The ‘to_date’ column overlaps with the ‘from_date’ column in the ‘salaries’ table.  
+This results in the employee having two salary records on the day of the ‘to_date’ column. 
+Fix it by decrementing the ‘to_date’ column by one day (e.g. from ‘1987-06-18’ to ‘1987-06-17’) to make each salary record exclusive
+
+
+# Solution
+val df = spark.sql("select * from salaries_backup")
+val odd = spark.sql("select * from salaries_backup where from_date = to_date")
+val merge = df.as("A").join(odd.as("B"),Seq("emp_no"),"leftouter").select($"A.*",$"B.from_date".alias("sal_date")).orderBy("from_date")
+val last = merge.withColumn("to_date", when(($"sal_date" === $"to_date") && ($"from_date" !== $"to_date"),date_sub($"to_date",1)).otherwise($"to_date")).drop("sal_date").orderBy("emp_no","from_date")
+
+
+# Testing
+scala> last.count
+res15: Long = 2844047
+
+scala> last.filter($"emp_no"===10867).show
++------+------+----------+----------+
+|emp_no|salary| from_date|   to_date|
++------+------+----------+----------+
+| 10867| 40000|1997-03-23|1998-03-23|
+| 10867| 44223|1998-03-23|1999-03-23|
+| 10867| 44054|1999-03-23|2000-03-22|
+| 10867| 46766|2000-03-22|2001-03-22|
+| 10867| 46330|2001-03-22|2002-03-21|
+| 10867| 48248|2002-03-22|2002-03-22|
++------+------+----------+----------+
+
+
+scala> last.filter($"from_date"===$"to_date").show(3)
++------+------+----------+----------+
+|emp_no|salary| from_date|   to_date|
++------+------+----------+----------+
+| 10867| 48248|2002-03-22|2002-03-22|
+| 11315| 85452|2002-01-17|2002-01-17|
+| 14256| 48468|1995-05-31|1995-05-31|
++------+------+----------+----------+
+only showing top 3 rows
+
+
+scala> df.filter($"emp_no"===11315).show
++------+------+----------+----------+
+|emp_no|salary| from_date|   to_date|
++------+------+----------+----------+
+| 11315| 84316|2000-01-18|2001-01-17|
+| 11315| 84450|2001-01-17|2002-01-17|
+| 11315| 85452|2002-01-17|2002-01-17|
++------+------+----------+----------+
+
+
+scala> last.filter($"emp_no"===11315).show
++------+------+----------+----------+
+|emp_no|salary| from_date|   to_date|
++------+------+----------+----------+
+| 11315| 84316|2000-01-18|2001-01-17|
+| 11315| 84450|2001-01-17|2002-01-16|
+| 11315| 85452|2002-01-17|2002-01-17|
++------+------+----------+----------+
+
+
+scala> df.filter($"emp_no"===14256).show
++------+------+----------+----------+
+|emp_no|salary| from_date|   to_date|
++------+------+----------+----------+
+| 14256| 46348|1994-05-31|1995-05-31|
+| 14256| 48468|1995-05-31|1995-05-31|
++------+------+----------+----------+
+
+
+scala> last.filter($"emp_no"===14256).show
++------+------+----------+----------+
+|emp_no|salary| from_date|   to_date|
++------+------+----------+----------+
+| 14256| 46348|1994-05-31|1995-05-30|
+| 14256| 48468|1995-05-31|1995-05-31|
++------+------+----------+----------+

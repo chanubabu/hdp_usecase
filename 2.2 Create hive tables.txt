@@ -1,0 +1,24 @@
+Create corresponding hive tables on top of imported HDFS files.
+
+
+#Employees Table
+
+create external table employees(
+emp_no int,
+birth_date date,
+first_name string,
+last_name string,
+gender string,
+hire_date date)
+row format delimited
+fields terminated by ',' location '/user/root/hdp/stage/employees1';
+	
+#Salaries Table	
+
+create external table salaries(
+emp_no int,
+salary int,  
+from_date date,
+to_date date)
+row format delimited 
+fields terminated by ',' location '/user/root/hdp/stage/salaries';

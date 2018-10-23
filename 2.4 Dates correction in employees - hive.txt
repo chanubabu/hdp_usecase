@@ -1,0 +1,60 @@
+#As per below criteria
+
+The first salary record for an employee should reflect the day they joined the company.  
+However, the ‘employees.hire_date’ column doesn’t always reflect this.  
+Clean the data by replacing the ‘employees.hire_date’ column with the first salary record for an employee
+
+#Solution 1
+
+create table employees_updated as
+insert overwrite table employees
+select E.emp_no,E.birth_date,E.first_name,E.last_name,E.gender,case when E.hire_date = S.salary_date then E.hire_date else cast(S.salary_date as string) end as hire_date from employees E
+JOIN
+(select emp_no,min(from_date) as salary_date from salaries group by emp_no) S
+ON E.emp_no = S.emp_no;
+
+
+
+#Testing
+
+hive> select count(*) from
+    > (select * from employees_backup ) A
+    > JOIN
+    > (select emp_no,min(from_date) as first_date from salaries_updated group by emp_no) B
+    > ON A.emp_no = B.emp_no
+    > where A.hire_date != B.first_date;
+OK
+149733 --------------------------------------------------->> ERRONEOUS RECORDS
+
+
+
+hive> select count(*) from
+    > (select * from employees_updated ) A
+    > JOIN
+    > (select emp_no,min(from_date) as first_date from salaries_updated group by emp_no) B
+    > ON A.emp_no = B.emp_no
+    > where A.hire_date != B.first_date;
+
+OK
+0 --------------------------------------------------->> ERRONEOUS RECORDS(NONE)
+
+hive> select *from employees_backup updated where emp_no =10002;
+OK
+10002   1964-06-02      Bezalel Simmel  F       1985-11-21 ---> Incorrect hire_date as per salary record(below)
+Time taken: 0.091 seconds, Fetched: 1 row(s)
+hive> select *from salaries_backup where emp_no =10002;
+OK
+10002   65828   1996-08-03      1997-08-03 -------------------> Min of from_date is 1996-08-03
+10002   65909   1997-08-03      1998-08-03
+10002   67534   1998-08-03      1999-08-03
+10002   69366   1999-08-03      2000-08-02
+10002   71963   2000-08-02      2001-08-02
+10002   72527   2001-08-02      9999-01-01
+Time taken: 0.042 seconds, Fetched: 6 row(s)
+
+
+hive> select *from employees_updated where emp_no =10002;
+OK
+10002   1964-06-02      Bezalel Simmel  F       1996-08-03 ----> Corrected as per salary record (above)
+
+

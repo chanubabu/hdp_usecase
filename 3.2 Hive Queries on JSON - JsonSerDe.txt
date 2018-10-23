@@ -1,0 +1,47 @@
+#1.Create hive table
+
+
+hive> CREATE EXTERNAL TABLE tweets (
+    > createddate string,
+    > geolocation string,
+    > tweetmessage string,
+    > `user` struct<geoenabled:boolean, id:int, name:string, screenname:string, userlocation:string>)
+    > ROW FORMAT SERDE 'org.apache.hive.hcatalog.data.JsonSerDe'
+    > LOCATION '/user/root/hdp/stage/poc';
+
+
+hive> show create table tweets;
+OK
+CREATE EXTERNAL TABLE `tweets`(
+  `createddate` string COMMENT 'from deserializer',
+  `geolocation` string COMMENT 'from deserializer',
+  `tweetmessage` string COMMENT 'from deserializer',
+  `user` struct<geoenabled:boolean,id:int,name:string,screenname:string,userlocation:string> COMMENT 'from deserializer')
+ROW FORMAT SERDE
+  'org.apache.hive.hcatalog.data.JsonSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION
+  'hdfs://master.hadoop.com:8020/user/root/hdp/stage/poc'
+TBLPROPERTIES (
+  'numFiles'='1',
+  'totalSize'='2755',
+  'transient_lastDdlTime'='1539492782')
+
+
+#2.Select Query as per Criteria
+What are all the tweets by the twitter user "Aimee_Cottle"?
+
+hive> SET hive.support.sql11.reserved.keywords=false;
+
+hive> set hive.cli.print.header=true;
+
+hive> select user.screenname,tweetmessage from tweets where user.screenname='Aimee_Cottle';
+OK
++---------------+---------------------------------------------------------------------------------------------------+--+
+|  screenname   |                                           tweetmessage                                            |
++---------------+---------------------------------------------------------------------------------------------------+--+
+| Aimee_Cottle  | Gastroenteritis has pretty much killed me this week :( off work for a few days whilst I recover!  |
++---------------+---------------------------------------------------------------------------------------------------+--+
